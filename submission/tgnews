@@ -1,2 +1,4 @@
 #!/bin/bash
-python3 src/main.py $1 $2
+
+export PYTHONPATH=site_packages/:$PYTHONPATH
+/usr/bin/python3 src/main.py $1 $2
