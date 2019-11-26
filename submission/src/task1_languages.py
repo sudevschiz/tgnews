@@ -7,15 +7,17 @@ import os
 import re
 from multiprocessing import Pool
 
+import helper_functions
+
 import pycld2 as cld2
 
 from bs4 import BeautifulSoup
 import sys
 
-# # Logger
-# logFormatter = '%(asctime)s - %(levelname)s - %(message)s'
-# logging.basicConfig(format=logFormatter, level=logging.DEBUG)
-# logger = logging.getLogger(__name__)
+# Logger
+logFormatter = '%(asctime)s - %(levelname)s - %(message)s'
+logging.basicConfig(format=logFormatter, level=logging.DEBUG)
+logger = logging.getLogger(__name__)
     
 ### Functions
 
@@ -130,8 +132,6 @@ def detect_langage(text,method = 'cld2'):
     return _p
 
 
-
-
 def detect_distributed(file):
     soup = get_soup(file)
     d = extract_meta(soup)
@@ -141,11 +141,13 @@ def detect_distributed(file):
     
     return d
 
+
 def label_final_lang(df_prob,prob=0.95):
     # For now, extract the cases where model was > 95% sure
     en_articles = list(df_prob[df_prob['en_prob']>=prob]['fname'])
     ru_articles = list(df_prob[df_prob['ru_prob']>=prob]['fname'])
     return en_articles,ru_articles
+
 
 def prepare_output(lang_code,article_list):
     #TODO : Make sure lang_code is a valid 
@@ -153,7 +155,8 @@ def prepare_output(lang_code,article_list):
     d = {"lang_code" : lang_code,"articles":article_list}
     return d
 
-def compute(path):
+
+def languages(path):
     file_list = read_filelist(path)
 #     logger.info(f'Number of files : {len(file_list)}')
     
@@ -173,5 +176,5 @@ def compute(path):
 if __name__ == "__main__":
     if(len(sys.argv)) > 1:
         path = sys.argv[1]
-#         logger.info('SOURCE_DIR : '+ path)
-        print(compute(path))
+        logger.info('SOURCE_DIR : '+ path)
+        print(languages(path))
