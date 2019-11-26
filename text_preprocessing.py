@@ -96,7 +96,7 @@ def preprocess(sample):
 
 
 if __name__ == "__main__":
-    sample = "Blood test for Down's syndrome hailed http://bbc.in/1BO3eWQ"               
+    sample = "Microsoft Azure® landscape is growing above and beyond AWS"              
     
     sample = remove_URL(sample)
     sample = replace_contractions(sample)
