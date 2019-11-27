@@ -13,22 +13,22 @@ if __name__ == "__main__":
         j_out = t1.compute(sys.argv[2])
 #         print(j_out)
     elif sys.argv[1] == "news":
-        print("separating english and russian in folder: "+sys.argv[2])
+        print("Finding news articles in folder: "+sys.argv[2])
         j_out = t1.compute(sys.argv[2])
 #         print(j_out)
     elif sys.argv[1] == "categories":
-        print("separating english and russian in folder: "+sys.argv[2])
+        print("Tagging categories in folder: "+sys.argv[2])
         j_out = t1.compute(sys.argv[2])
 #         print(j_out)
     elif sys.argv[1] == "threads":
-        print("separating english and russian in folder: "+sys.argv[2])
+        print("Finding threads in folder: "+sys.argv[2])
         j_out = t1.compute(sys.argv[2])
 #         print(j_out)
     elif sys.argv[1] == "top":
-        print("separating english and russian in folder: "+sys.argv[2])
+        print("Threads sorted by relevance in folder: "+sys.argv[2])
         j_out = t1.compute(sys.argv[2])
 #         print(j_out)
     else:
         print("Unsupported arguments")
-        return
+    
     print(json.dumps(j_out, indent=4, sort_keys=True))

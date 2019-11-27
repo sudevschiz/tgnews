@@ -1,39 +1,21 @@
-import pandas as pd
-import numpy as np
 
 import lightgbm as lgb
 
-from bs4 import BeautifulSoup
-
 from multiprocessing import Pool
-import glob
 
-from helper_functions import * #Bad practise
-
+from helper_functions import *
 import task1_languages as t1
 
-import logging
-import os
-import sys
-import json
 
-
-### LOGGER
-logFormatter = '%(asctime)s - %(levelname)s - %(message)s'
-logging.basicConfig(format=logFormatter, level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-### ASSETS 
-
+### ASSET LOCATIONS
 ru_vec = ""
-en_vec = "../assets/wiki-news-300d-500k.vec"
+en_vec = "../assets/wiki-news-300d-1M.vec"
 
-model_file = "../assets/models/lgb_model_all_data.txt"
+model_file = "../assets/models/lgb_news_predict.txt"
 
 
 ### NECESSARY FUNCTIONS
-
-
-def prepare_output(y_pred,file_list,threshold=0.5):
+def prepare_output(y_pred,file_list,threshold=0.5,**kwargs):
     '''Helper function to prepare the output in the TG way
     Takes the predictions and the correspoding file names
     and returns a grouped json object'''
@@ -52,36 +34,34 @@ def news(*args):
     Can be imported to a different module and
     take source folder as input to print
     the output json with mentioned category'''
-    try : 
-        # Get file_list
-        file_list = read_filelist(args[0])
-    except IndexError as e:
-        print('ERR:Source directory missing')
-        exit()
+  
+    # Call the languages module to get only EN and RU articles
+    # Enable full_path parameter for later manipulations
+    lang_json,df_parsed = t1.languages(sys.argv[1],full_path=True,return_parsed_df=True)
     
+    file_list = []
+    for lang in lang_json:
+        file_list.extend(lang['articles'])
     
-    # Load the predictive model
+    # Subset the data frame to only consider EN and RU
+    df_parsed = df_parsed[df_parsed.fname.isin(file_list)]
+    # Load the predictive model that classifies news and no news
     model = lgb.Booster(model_file=model_file)
     
     
     #### START EXECUTION ON FILES
-    with Pool(N_CORES) as pool:
-        # Pass only the news articles to parse function
-        # Ideally, the parsed files from task2 should be
-        # reused
-        html_list = pool.map(parse_html_file,file_list)
-    
-    # Create a list of text only
-    test_list = [d['all_text'] for d in html_list]
-    # Create a list of filenames only
-    
-   
-    # Predict the categories
-    with Pool(N_CORES) as pool:
-        # Use partial function to add the fixed parame
-        # Compute FT vector
-        vector = pool.map(compute_ft_sum,en_ru_list)
 
+    text_list = list(df_parsed['all_text'])
+    
+    # Create features from the text
+    # The below parallel operation doesn't work
+   
+    # with Pool(N_CORES) as pool:
+    #    vector = pool.map(compute_ft_sum,text_list)
+    
+    _,_,ft_dict = load_vectors(en_vec)
+    vector = [compute_ft_sum(t,ft_dict=ft_dict) for t in text_list]
+    
     # Convert to dataframe and predict label
     df_test = pd.DataFrame(vector)
     y_pred = model.predict(df_test)
