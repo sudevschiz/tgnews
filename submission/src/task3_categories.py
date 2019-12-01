@@ -12,7 +12,6 @@ import task2_news as t2
 import logging
 import os
 import sys
-import json
 
 
 ### LOGGER
@@ -57,20 +56,20 @@ def predict_label(df_test,model):
 def prepare_output(y_pred,file_list):
     '''Helper function to prepare the output in the TG way
     Takes the predictions and the correspoding file names
-    and returns a grouped json object'''
+    and returns a dictionary'''
     fname = [os.path.basename(p) for p in file_list]
     _d = pd.DataFrame({'html_fname' : fname,'label' : y_pred})
     out_dict = dict(_d.groupby('label').apply(lambda x : [f for f in x['html_fname']]))
-    out_json = json.dumps(out_dict)
     
-    return out_json
+    return out_dict
 
 
-def categories(*kwargs):
+def categories(**kwargs):
     '''Make calls in the logical predict way.
     Can be imported to a different module and
-    take source folder as input to print
-    the output json with mentioned category'''
+    take source folder as input and returns 
+    the dictionary with mentioned category
+    as output'''
     try : 
         # Get file_list
         html = kwargs['html']
@@ -84,7 +83,7 @@ def categories(*kwargs):
             pass
     
     if path:
-        out_json,n_feats = t2.news(path = path)
+        out_dict,n_feats = t2.news(path = path)
         html = n_feats['html_dict']
   
     if html.any():   

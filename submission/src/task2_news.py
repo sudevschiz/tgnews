@@ -146,11 +146,13 @@ def news(**kwargs):
     # Convert to dataframe and create summed up features
 
     n_feats = pd.DataFrame(results)
+
     n_feats['html_dict'] = results
 
     n_feats['fname'] = df_parsed['fname']
     n_feats['news_keys'] = n_feats['title_num_nw'] + n_feats['site_name_num_nw'] + n_feats['url_num_nw']
     n_feats['not_news_keys'] = n_feats['title_num_no_nw'] + n_feats['site_name_num_no_nw'] + n_feats['url_num_no_nw']
+    
     
     # Get the filenames. Use the fullpath parameter
     try:
@@ -160,15 +162,14 @@ def news(**kwargs):
         full_path = False
     
     if full_path:
-        news_articles = list(n_feats[(n_feats['not_news_keys'] < n_feats['news_keys'])].fname)
+        news_articles = list(n_feats[(n_feats['not_news_keys'] <= n_feats['news_keys'])].fname)
     else:
-        news_articles = list(n_feats[n_feats['not_news_keys'] < n_feats['news_keys']].fname.map(os.path.basename))
+        news_articles = list(n_feats[n_feats['not_news_keys'] <= n_feats['news_keys']].fname.map(os.path.basename))
     
     # Prepare the json output
     out_dict = {"articles":news_articles}
-    out_json = json.dumps(out_dict)
     
-    return out_json,n_feats
+    return out_dict,n_feats
 
 if __name__ == "__main__":
     import sys
@@ -177,8 +178,8 @@ if __name__ == "__main__":
         path = sys.argv[1]
         
         #CALL THE COMPUTATION
-        out_json,n_feats = news(path)
-        print(out_json)
+        out_dict,n_feats = news(path)
+        print(out_dicts)
     else :
         print("Provide source_dir")
 

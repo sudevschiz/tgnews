@@ -6,29 +6,45 @@ import task4_threads as t4
 import task5_top as t5
 import json
 
+import logging
+
+from time import time
+
+
+### LOGGER
+logFormatter = '%(asctime)s - %(levelname)s - %(message)s'
+logging.basicConfig(format=logFormatter, level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 
 
 if __name__ == "__main__":
+    # Time the call
+    st_time = time()
+    
     if sys.argv[1] == "languages":
         j_out = t1.languages(sys.argv[2])
 #         print(j_out)
     elif sys.argv[1] == "news":
-        print("Finding news articles in folder: "+sys.argv[2])
-        j_out = t2.news(sys.argv[2])
+        logger.info("Finding news articles in folder: "+sys.argv[2])
+        j_out,_ = t2.news(path = sys.argv[2])
 #         print(j_out)
     elif sys.argv[1] == "categories":
-        print("Tagging categories in folder: "+sys.argv[2])
-        j_out = t3.categories(sys.argv[2])
+        logger.info("Tagging categories in folder: "+sys.argv[2])
+        j_out = t3.categories(path = sys.argv[2])
 #         print(j_out)
     elif sys.argv[1] == "threads":
-        print("Finding threads in folder: "+sys.argv[2])
+        logger.info("Finding threads in folder: "+sys.argv[2])
         j_out = t4.threads(sys.argv[2])
 #         print(j_out)
     elif sys.argv[1] == "top":
-        print("Threads sorted by relevance in folder: "+sys.argv[2])
+        logger.info("Threads sorted by relevance in folder: "+sys.argv[2])
         j_out = t5.top(sys.argv[2])
 #         print(j_out)
     else:
-        print("Unsupported arguments")
-    
+        logger.error("Unsupported arguments")
+        exit()
+
     print(json.dumps(j_out, indent=4, sort_keys=True))
+    
+    logger.info(f"Execution complete in {time()-st_time} seconds.")
