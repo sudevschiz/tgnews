@@ -3,13 +3,10 @@ import numpy as np
 
 import lightgbm as lgb
 
-from bs4 import BeautifulSoup
-
 from multiprocessing import Pool
 import glob
 
-import text_preprocessing as tp
-
+from helper_functions import compute_ft_sum,load_vectors
 import task2_news as t2
 
 import logging
@@ -69,49 +66,50 @@ def prepare_output(y_pred,file_list):
     return out_json
 
 
-def categories(*args):
+def categories(*kwargs):
     '''Make calls in the logical predict way.
     Can be imported to a different module and
     take source folder as input to print
     the output json with mentioned category'''
     try : 
         # Get file_list
-        file_list = read_filelist(args[0])
-    except IndexError as e:
-        print('ERR:Source directory missing')
-        exit()
+        html = kwargs['html']
+        logger.info('Parsed html files are passed.')
+    except KeyError as e:
+        logger.info('Did not received parsed html. Trying file_list')
+        try : 
+            path = kwargs['path']
+        except KeyError as e:
+            logger.error("Neither html nor file_list passed. Check inputs")
+            pass
     
-    # TODO : Extract only News articles (Task 2)
-    # This will in internally select only EN and RU
-    # articles
-    
-    en_ru_news = t2.news(file_list)
+    if path:
+        out_json,n_feats = t2.news(path = path)
+        html = n_feats['html_dict']
   
-    # Load the predictive model
+    if html.any():   
+        #### START EXECUTION ON FILES
+        
+#         tokens = [x['all_text_tokens'] for x in html]
+#         with Pool(N_CORES) as pool:
+#             # Compute FT vector
+#             vector = pool.map(compute_ft_sum,tokens)
+        
+        _,_,ft_dict = load_vectors(en_vec)
+        vector = [compute_ft_sum(h['all_text_tokens'],ft_dict) for h in html]
+        # Additional feature creations here
+        
+        ## ###
+    
+    # PREDICTION
     model = lgb.Booster(model_file=model_file)
-    
-    
-    #### START EXECUTION ON FILES
-    with Pool(N_CORES) as pool:
-        # Pass only the news articles to parse function
-        # Ideally, the parsed files from task2 should be
-        # reused
-        html_list = pool.map(parse_html_file,en_ru_news)
-    
-    # Create a list of text only
-    test_list = [d['all_text'] for d in html_list]
-    
    
-    with Pool(N_CORES) as pool:
-        # Compute FT vector
-        vector = pool.map(compute_ft_sum,en_ru_list)
-    
-    # Convert to datafram and predict label
+    # Convert to dataframe and predict label
     df_test = pd.DataFrame(vector)
     y_pred = predict_label(df_test,model)
 
     # Prepare the json output
-    output = prepare_output(y_pred,file_list)
+    output = prepare_output(y_pred,n_feats['fname'])
     
     return output
 

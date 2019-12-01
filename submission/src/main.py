@@ -10,23 +10,23 @@ import json
 
 if __name__ == "__main__":
     if sys.argv[1] == "languages":
-        j_out = t1.compute(sys.argv[2])
+        j_out = t1.languages(sys.argv[2])
 #         print(j_out)
     elif sys.argv[1] == "news":
         print("Finding news articles in folder: "+sys.argv[2])
-        j_out = t1.compute(sys.argv[2])
+        j_out = t2.news(sys.argv[2])
 #         print(j_out)
     elif sys.argv[1] == "categories":
         print("Tagging categories in folder: "+sys.argv[2])
-        j_out = t1.compute(sys.argv[2])
+        j_out = t3.categories(sys.argv[2])
 #         print(j_out)
     elif sys.argv[1] == "threads":
         print("Finding threads in folder: "+sys.argv[2])
-        j_out = t1.compute(sys.argv[2])
+        j_out = t4.threads(sys.argv[2])
 #         print(j_out)
     elif sys.argv[1] == "top":
         print("Threads sorted by relevance in folder: "+sys.argv[2])
-        j_out = t1.compute(sys.argv[2])
+        j_out = t5.top(sys.argv[2])
 #         print(j_out)
     else:
         print("Unsupported arguments")

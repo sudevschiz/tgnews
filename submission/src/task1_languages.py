@@ -62,10 +62,11 @@ def detect_langage(text,method = 'cld2'):
 def detect_distributed(file):
     '''This function calls the process in order.
     Parallizes well.'''
-    soup = get_soup(file)
-    d = extract_meta(soup)
-    d['p_text'] = extract_text(soup,'p')
-    d['all_text'] = sanitize_text(d['title'] + "\n" + d['p_text'])
+#     soup = get_soup(file)
+#     d = extract_meta(soup)
+#     d['p_text'] = extract_text(soup,'p')
+#     d['all_text'] = sanitize_text(d['title'] + "\n" + d['p_text'])
+    d = parse_html_file(file)
     d.update(detect_langage(d['all_text']))
     
     return d
@@ -102,6 +103,8 @@ def languages(path,**kwargs):
         results = pool.map(detect_distributed, file_list)
     
     df_prob = pd.DataFrame(results)
+    df_prob['html_dict'] = list(results)
+    
     try:
         full_path = kwargs['full_path']
         if full_path:
@@ -109,11 +112,18 @@ def languages(path,**kwargs):
         else:
             df_prob['fname'] = [os.path.basename(f) for f in file_list]
     except KeyError as e:
-        logger.warning('Returning full file path')
+        logger.warning('Returning only the file name')
         df_prob['fname'] = [os.path.basename(f) for f in file_list]
-        
+    
+
     # For now, extract the cases where model was > 95% sure
-    en_articles,ru_articles = label_final_lang(df_prob,prob=0.95)
+    try:
+        threshold = kwargs['threshold']
+    except KeyError as e:
+        logger.info("Setting default probabiltiy at 0.95")
+        threshold = 0.95
+    
+    en_articles,ru_articles = label_final_lang(df_prob,prob=threshold)
     
     output = prepare_output("en",en_articles),prepare_output("ru",ru_articles)
     
@@ -124,7 +134,6 @@ def languages(path,**kwargs):
         else:
             return output
     except KeyError as e:
-        print(e)
         logger.info('Returning output dictionary only.')
         return output
 
