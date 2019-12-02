@@ -90,10 +90,14 @@ def preprocess(sample):
     sample = replace_contractions(sample)
     # Tokenize
     words = nltk.word_tokenize(sample)
-
-    # Normalize
-    return normalize(words)
-
+    
+    try:
+        # Normalize
+        return normalize(words)
+    except Exception as e:
+        print(e)
+        return ""
+        pass
 
 if __name__ == "__main__":
     sample = "Microsoft Azure® landscape is growing above and beyond AWS"              

@@ -31,11 +31,11 @@ if __name__ == "__main__":
 #         print(j_out)
     elif sys.argv[1] == "categories":
         logger.info("Tagging categories in folder: "+sys.argv[2])
-        j_out = t3.categories(path = sys.argv[2])
+        j_out,_= t3.categories(path = sys.argv[2])
 #         print(j_out)
     elif sys.argv[1] == "threads":
         logger.info("Finding threads in folder: "+sys.argv[2])
-        j_out = t4.threads(sys.argv[2])
+        j_out,_ = t4.threads(sys.argv[2])
 #         print(j_out)
     elif sys.argv[1] == "top":
         logger.info("Threads sorted by relevance in folder: "+sys.argv[2])

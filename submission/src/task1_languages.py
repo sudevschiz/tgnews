@@ -3,6 +3,10 @@ from helper_functions import *
 import pycld2 as cld2
 
 
+logFormatter = '%(asctime)s - %(levelname)s - %(message)s'
+logging.basicConfig(format=logFormatter, level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+    
 ### FUNCTIONS FOR LANGUAGE DETECTION
 def compute_lang_prob(t):
     '''Returns the top language code identified.
@@ -51,7 +55,7 @@ def detect_langage(text,method = 'cld2'):
         else:
             result = tuple()
     except Exception as e:
-        logger.error(e)
+#         logger.error(e)
         result = tuple()
     
     # Now, compute the probabilities

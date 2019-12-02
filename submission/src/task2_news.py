@@ -14,12 +14,9 @@ from multiprocessing import Pool
 import pickle
 
 
-### LOGGER
 logFormatter = '%(asctime)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=logFormatter, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
-
 
 ### ASSET LOCATIONS
 newsy_words = "../assets/newsy_words.pickle"
@@ -88,7 +85,7 @@ def extract_features(html,newsy_words,non_newsy_words,**kwargs):
 
 def aggregate_features(html):
     
-    newsy_words = ['news','daily','desk','breaking','archive','times','report','network']
+    newsy_words = ['news','daily','desk','breaking','archive','times','report','network','post']
     non_newsy_words = ['recipe','horoscope','lottery','advertisement','ad']
 
 #     #Pickle newsy_words
@@ -172,6 +169,12 @@ def news(**kwargs):
     return out_dict,n_feats
 
 if __name__ == "__main__":
+    
+    logFormatter = '%(asctime)s - %(levelname)s - %(message)s'
+    logging.basicConfig(format=logFormatter, level=logging.DEBUG)
+    logger = logging.getLogger(__name__)
+
+
     import sys
     len(sys.argv)
     if(len(sys.argv)) > 1:

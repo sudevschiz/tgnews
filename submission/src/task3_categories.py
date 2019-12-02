@@ -14,16 +14,18 @@ import os
 import sys
 
 
-### LOGGER
 logFormatter = '%(asctime)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=logFormatter, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+
 ### ASSETS 
 ru_vec = ""
 en_vec = "../assets/wiki-news-300d-500k.vec"
+en_selected = "../assets/wiki_news_ft_300D_selected.json"
 
-model_file = "../assets/models/lgb_model_all_data.txt"
+
+model_file = "../assets/models/lgb_model.txt"
 
 ### RELEVANT FUNCTIONS FOR THIS TASK
 def labelize_numeric(arr):
@@ -93,31 +95,41 @@ def categories(**kwargs):
 #         with Pool(N_CORES) as pool:
 #             # Compute FT vector
 #             vector = pool.map(compute_ft_sum,tokens)
-        
+
         _,_,ft_dict = load_vectors(en_vec)
         vector = [compute_ft_sum(h['all_text_tokens'],ft_dict) for h in html]
-        # Additional feature creations here
         
-        ## ###
+
     
     # PREDICTION
     model = lgb.Booster(model_file=model_file)
    
-    # Convert to dataframe and predict label
+    # Convert to dataframe and predict label and to return later
     df_test = pd.DataFrame(vector)
+    df_test['title'] = title
+    df_test['published_time'] = published_time
+    
     y_pred = predict_label(df_test,model)
+    df_test['label'] = y_pred
 
     # Prepare the json output
     output = prepare_output(y_pred,n_feats['fname'])
     
-    return output
+    return output,df_test
 
 if __name__ == "__main__":
+    
+    ### LOGGER
+    logFormatter = '%(asctime)s - %(levelname)s - %(message)s'
+    logging.basicConfig(format=logFormatter, level=logging.DEBUG)
+    logger = logging.getLogger(__name__)
+
+
     if(len(sys.argv)) > 1:
         path = sys.argv[1]
         
         #CALL THE COMPUTATION
-        print(categories(path))
+        print(categories(path=path))
     else :
         print("Provide source_dir")
 
